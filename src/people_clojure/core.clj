@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.walk :as walk]
             [compojure.core :as c]
-            [ring.adapter.jetty :as j])
+            [ring.adapter.jetty :as j]
+            [hiccup.core :as h])
   (:gen-class))
 
 (defn read-people []
@@ -23,9 +24,15 @@
   ;  (spit "filtered_people.edn" (pr-str people))
     people))
 
+(defn people-html []
+  [:ol
+   (map (fn [person]
+          [:li (str (:first_name person) " " (:last_name person))])
+        (read-people))])
+
 (c/defroutes app
   (c/GET "/" request
-    "Hello, world!"))
+   (h/html (people-html))))
 
 (defn -main []
   (j/run-jetty app {:port 3000}))
